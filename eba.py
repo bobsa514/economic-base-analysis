@@ -47,6 +47,8 @@ def calc_lq(county_fips, naics_digits):
         df_us = pickle.load(f)
     with open('eba_prep_co.pkl', 'rb') as f:
         df = pickle.load(f)
+    # turn string naics_digits into a int
+    naics_digits = int(naics_digits)
     # use example of 06073 and 4-digit naics
     df_co_wip = df[df['fips'] == county_fips]
     # keep only 0 or 4 digit naics
@@ -64,9 +66,6 @@ def calc_lq(county_fips, naics_digits):
 
     df = df_us_wip[['naics', 'description', 'emp_co', 'lq']]
     df = df.rename(columns={'emp_co': 'employment', 'lq': 'location_quotient'})
-    # return all rows with location_quotient > 1 and sort by location_quotient
-    df = df[df['location_quotient'] > 1].sort_values(by='location_quotient', ascending=False)
-    print(df)
-
-if __name__ == '__main__':
-    calc_lq('06073', 6)
+    # return all rows with location_quotient > 1 and sort by location_quotient, keep only top 10
+    df = df[df['location_quotient'] > 1].sort_values(by='location_quotient', ascending=False).head(10)
+    return df
