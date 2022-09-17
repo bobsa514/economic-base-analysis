@@ -1,28 +1,40 @@
 from dash import Dash, Input, Output, callback, dash_table, State, dcc, html
+import dash_bootstrap_components as dbc
 from eba import calc_lq
 
-# using callback to input county_fips and naics_digits, and pass to eba
-# return a table of data
-# https://dash.plotly.com/interactive-graphing
-# https://dash.plotly.com/layout
-# https://dash.plotly.com/dash-core-components
-# https://dash.plotly.com/dash-html-components
+app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
-app = Dash(__name__)
 app.layout = html.Div([
     html.Div([
         html.H1("Local Quotient"),
-        html.Div("County FIPS:"),
-        dcc.Input(id='input-county-fips', value='06073', type='text'),
-        html.Div("NAICS Digits:"),
-        dcc.Input(id='input-naics-digits', value='4', type='text'),
-        html.Button('Submit', id='button'),
+
+        html.Br(),
+
+        dbc.Label("County FIPS:"),
+        dbc.Input(id='input-county-fips',placeholder="Example: 06073", type="text"),
+        dbc.FormText("FIPS code should be 5 digits"),
+
+        html.Br(),
+        html.Br(),
+
+        dbc.Label("NAICS Digits:"),
+        dbc.Input(id='input-naics-digits', placeholder='Example: 4', type='text'),
+        dbc.FormText("Enter value 2 to 6. NAICS digits stand for the detail level of NAICS code. The higher the number is, the more detailed the NAICS code is. "),
+
+        html.Br(),
+        html.Br(),
+
+        dbc.Button('Submit', color="primary", className="me-1", id='button'),
         html.Div(id='output-container-button',
-                 children='Enter a value and press submit'),
+                 children='Enter the values above and press submit'),
     ]),
+
+    html.Br(),
+    html.Br(),
+
     html.Div([
         html.Div(id='output-container-table'),
-    ], style={'columnCount': 2}),
+    ], style={'columnCount': 1}),
 ])
 
 @app.callback(
@@ -38,24 +50,21 @@ def update_output(n_clicks, input_county_fips, input_naics_digits):
         return 'Enter a value and press submit', ''
     else:
         df = calc_lq(input_county_fips, input_naics_digits)
-        return 'The county FIPS input value was "{}" and the NAICS code digit input value was "{}"'.format(input_county_fips, input_naics_digits), dash_table.DataTable(
-            id='table',
-            columns=[{"name": i, "id": i} for i in df.columns],
+        # return table with bootstrap style
+        return 'The result is shown below', dash_table.DataTable(
             data=df.to_dict('records'),
-            style_table={'height': '400px', 'width': '1200px', 'overflowY': 'auto'},
-            page_size=10,
-            style_data={
-                'width': '100px',
-                'maxWidth': '100px',
-                'minWidth': '100px',
-             },
-            style_cell_conditional=[
-                {
-                    'if': {'column_id': 'description'},
-                    'width': '800px'
-                },
-            ],
+            columns=[{'name': i, 'id': i} for i in df.columns],
+            style_cell={'textAlign': 'left'},
+            style_header={
+                'backgroundColor': 'rgb(230, 230, 230)',
+                'fontWeight': 'bold'
+            },
+            style_table={
+                'maxHeight': '300px',
+                'overflowY': 'scroll'
+            }
         )
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
