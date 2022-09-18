@@ -1,5 +1,14 @@
 import pandas as pd
+import os
 import pickle
+
+def fips_prep():
+    fips_url = 'https://raw.githubusercontent.com/kjhealy/fips-codes/master/county_fips_master.csv'
+    df = pd.read_csv(fips_url, encoding='ISO-8859-1')
+    df['fips'] = df['fips'].apply(lambda x: str(x).zfill(5))
+    df = df[['fips', 'county_name', 'state_name']]
+    df['full_name'] = df['county_name'] + ', ' + df['state_name']
+    return df
 
 def eba_data_prep():
     cbp20url = 'https://www2.census.gov/programs-surveys/cbp/datasets/2020/cbp20co.zip'
@@ -69,3 +78,6 @@ def calc_lq(county_fips, naics_digits):
     # return all rows with location_quotient > 1 and sort by location_quotient, keep only top 10
     df = df[df['location_quotient'] > 1].sort_values(by='location_quotient', ascending=False).head(10)
     return df
+
+if __name__ == '__main__':
+    fips_prep()
