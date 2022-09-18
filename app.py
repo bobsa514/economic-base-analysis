@@ -18,7 +18,18 @@ app.layout = html.Div([
         html.Br(),
 
         dbc.Label("NAICS Digits:"),
-        dbc.Input(id='input-naics-digits', placeholder='Example: 4', type='text'),
+        # create radio optinos
+        dbc.RadioItems(
+            id='input-naics-digits',
+            options=[
+                {'label': '2-digit', 'value': '2'},
+                {'label': '3-digit', 'value': '3'},
+                {'label': '4-digit', 'value': '4'},
+                {'label': '5-digit', 'value': '5'},
+                {'label': '6-digit', 'value': '6'},
+            ],
+            inline=True
+        ),
         dbc.FormText("Enter value 2 to 6. NAICS digits stand for the detail level of NAICS code. The higher the number is, the more detailed the NAICS code is. "),
 
         html.Br(),
