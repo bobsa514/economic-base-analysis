@@ -51,7 +51,7 @@ def eba_data_prep():
     with open('eba_prep_co.pkl', 'wb') as f:
         pickle.dump(df, f)
 
-def calc_lq(county_fips, naics_digits):
+def calc_lq(county_fips, naics_digits, items_to_show):
     with open('eba_prep_us.pkl', 'rb') as f:
         df_us = pickle.load(f)
     with open('eba_prep_co.pkl', 'rb') as f:
@@ -76,7 +76,7 @@ def calc_lq(county_fips, naics_digits):
     df = df_us_wip[['naics', 'description', 'emp_co', 'lq']]
     df = df.rename(columns={'emp_co': 'employment', 'lq': 'location_quotient'})
     # return all rows with location_quotient > 1 and sort by location_quotient, keep only top 10
-    df = df[df['location_quotient'] > 1].sort_values(by='location_quotient', ascending=False).head(10)
+    df = df[df['location_quotient'] > 1].sort_values(by='location_quotient', ascending=False).head(items_to_show)
     return df
 
 if __name__ == '__main__':

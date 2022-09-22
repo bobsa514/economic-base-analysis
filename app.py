@@ -35,6 +35,13 @@ app.layout = html.Div([
         html.Br(),
         html.Br(),
 
+        dbc.Label("Number of items to return:"),
+        dbc.Input(id='input-num-items',placeholder="Example: 10", type="number"),
+        dbc.FormText("Enter a number between 1 and 100"),
+
+        html.Br(),
+        html.Br(),
+
         dbc.Button('Submit', color="primary", className="me-1", id='button'),
         html.Div(id='output-container-button',
                  children='Enter the values above and press submit'),
@@ -54,13 +61,14 @@ app.layout = html.Div([
     Input(component_id='button', component_property='n_clicks'),
     State(component_id='input-county-fips', component_property='value'),
     State(component_id='input-naics-digits', component_property='value'),
+    State(component_id='input-num-items', component_property='value'),
 )
 
-def update_output(n_clicks, input_county_fips, input_naics_digits):
+def update_output(n_clicks, input_county_fips, input_naics_digits, input_num_items):
     if n_clicks is None:
         return 'Enter a value and press submit', ''
     else:
-        df = calc_lq(input_county_fips, input_naics_digits)
+        df = calc_lq(input_county_fips, input_naics_digits, input_num_items)
         # return table with bootstrap style
         return 'The result is shown below', dash_table.DataTable(
             data=df.to_dict('records'),
@@ -71,7 +79,7 @@ def update_output(n_clicks, input_county_fips, input_naics_digits):
                 'fontWeight': 'bold'
             },
             style_table={
-                'maxHeight': '300px',
+                'maxHeight': '800px',
                 'overflowY': 'scroll'
             }
         )
