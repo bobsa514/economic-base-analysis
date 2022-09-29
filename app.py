@@ -10,14 +10,16 @@ app.layout = html.Div([
 
         html.Br(),
 
-        dbc.Label("County FIPS:"),
-        dbc.Input(id='input-county-fips',placeholder="Example: 06073", type="text"),
+        dbc.Label("County FIPS:",
+                  style={'font-weight': 'bold'}, align='center'),
+        dbc.Input(id='input-county-fips',placeholder="Example: 06073", type="text",
+                    style={"width": 150, "height": 50},),
         dbc.FormText("FIPS code should be 5 digits"),
 
         html.Br(),
         html.Br(),
 
-        dbc.Label("NAICS Digits:"),
+        dbc.Label("NAICS Digits:", style={'text-align': 'center'}),
         # create radio optinos
         dbc.RadioItems(
             id='input-naics-digits',
@@ -28,7 +30,7 @@ app.layout = html.Div([
                 {'label': '5-digit', 'value': '5'},
                 {'label': '6-digit', 'value': '6'},
             ],
-            inline=True
+            inline=True,
         ),
         dbc.FormText("Enter value 2 to 6. NAICS digits stand for the detail level of NAICS code. The higher the number is, the more detailed the NAICS code is. "),
 
@@ -36,7 +38,8 @@ app.layout = html.Div([
         html.Br(),
 
         dbc.Label("Number of items to return:"),
-        dbc.Input(id='input-num-items',placeholder="Example: 10", type="number"),
+        dbc.Input(id='input-num-items',placeholder="Example: 10", type="number",
+                    style={"width": 150, "height": 50}, ),
         dbc.FormText("Enter a number between 1 and 100"),
 
         html.Br(),
@@ -45,15 +48,15 @@ app.layout = html.Div([
         dbc.Button('Submit', color="primary", className="me-1", id='button'),
         html.Div(id='output-container-button',
                  children='Enter the values above and press submit'),
-    ]),
+    ], style={'width': '80%', 'display': 'inline-block', 'padding': '20 20'}),   
 
     html.Br(),
     html.Br(),
 
     html.Div([
-        html.Div(id='output-container-table'),
+        html.Div(id='output-container-table', style={'textAlign': 'center'}),
     ], style={'columnCount': 1}),
-])
+],)
 
 @app.callback(
     Output(component_id='output-container-button', component_property='children'),
