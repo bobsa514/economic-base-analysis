@@ -1,0 +1,1 @@
+"""Economic base analysis calculations."""

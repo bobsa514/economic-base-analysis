@@ -89,4 +89,4 @@ def update_output(n_clicks, input_county_fips, input_naics_digits, input_num_ite
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run(debug=True)
