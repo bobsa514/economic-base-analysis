@@ -26,9 +26,9 @@ Thumbs.db
 data/
 
 # Legacy app (superseded by backend/ + frontend/)
-app.py
-eba.py
-src/
+/app.py
+/eba.py
+/src/
 
 # Build
 dist/

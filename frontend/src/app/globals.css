@@ -2,6 +2,9 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* Explicit source path — Tailwind v4 auto-detection misses components on Vercel */
+@source "../";
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
