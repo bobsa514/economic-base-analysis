@@ -19,11 +19,20 @@ out/
 .DS_Store
 Thumbs.db
 
-# Data cache
+# Data / cache
 *.pkl
 *.db
 *.sqlite
+data/
+
+# Legacy app (superseded by backend/ + frontend/)
+app.py
+eba.py
+src/
 
 # Build
 dist/
 build/
+
+# Deployment (local)
+.vercel/

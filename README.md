@@ -18,11 +18,8 @@ A web application for analyzing the economic base of US counties, MSAs, and ZIP 
 
 ## Architecture
 
-The project has three components:
-
 1. **Next.js frontend** (`frontend/`) - Interactive web app with maps, charts, and data tables
 2. **FastAPI backend** (`backend/`) - API server that queries the Census Bureau API in real-time
-3. **Legacy Dash app** (`app.py`, `eba.py`) - Original prototype using pre-downloaded data files
 
 ### Frontend Structure
 
@@ -123,14 +120,19 @@ The API docs are available at `http://localhost:8000/docs` (Swagger UI) and `htt
 | `GET /api/metadata/years` | Available data years |
 | `GET /api/metadata/naics?level=2` | NAICS code list |
 
-### Legacy Dash App
+### Deployment
 
-```bash
-# From project root
-pip install -r requirements.txt
-python eba.py          # Download and prep data (one-time)
-python app.py          # Start Dash app on :8050
-```
+**Frontend (Vercel):**
+1. Import repo on [vercel.com](https://vercel.com)
+2. Set **Root Directory** to `frontend`
+3. Add environment variable: `NEXT_PUBLIC_API_URL` = your Railway backend URL
+
+**Backend (Railway):**
+1. Create new project on [railway.app](https://railway.app)
+2. Set **Root Directory** to `backend`
+3. Add environment variables: `CENSUS_API_KEY` (required), optionally `CORS_ORIGINS` (JSON array of allowed origins)
+
+See `.env.example` files in each directory for all available configuration options.
 
 ## Data Sources
 

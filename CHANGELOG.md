@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.0] - 2026-03-09
+
+### Changed
+- **Removed legacy Dash app** — Deleted `app.py`, `eba.py`, pre-downloaded data files (`.pkl`), and old `src/` directory from git tracking. The modern Next.js + FastAPI stack fully replaces the prototype.
+- **Updated `.gitignore`** — Added rules for legacy files, `data/`, and `.vercel/`
+
+### Added
+- **Vercel deployment config** — `vercel.json` at repo root for frontend deployment (free tier)
+- **Railway deployment config** — `backend/railway.toml`, `backend/Procfile`, `backend/nixpacks.toml` for backend deployment ($5 tier)
+- **Environment examples** — `backend/.env.example` and `frontend/.env.example` documenting all config options
+- **Production CORS support** — Backend config gracefully handles missing `.env` file (Railway sets env vars directly)
+
 ## [1.4.1] - 2026-03-08
 
 ### Fixed

@@ -14,7 +14,7 @@ Portfolio project with a FastAPI backend and Next.js 15 frontend.
 - **Auth**: Census API key stored in `backend/.env` (gitignored)
 
 ### Key Design Decisions
-- **Real-time API queries** instead of pre-downloaded bulk files (the legacy approach in `eba.py`)
+- **Real-time API queries** instead of pre-downloaded bulk files
 - **NAICS version auto-detection**: CBP years 2017+ use NAICS2017; earlier years fall back to NAICS2012
 - **All Census values are strings**: Client layer handles numeric conversion with null/suppressed value handling
 - **Pydantic models for all responses**: Ensures type safety and auto-generates OpenAPI docs
@@ -40,10 +40,12 @@ source venv/bin/activate
 uvicorn main:app --reload --port 8000    # Dev server
 ```
 
-### Legacy Dash App
-```bash
-python app.py    # Starts on :8050
-```
+## Deployment
+- **Frontend**: Vercel (free tier), root directory = `frontend/`, env var `NEXT_PUBLIC_API_URL` points to Railway backend
+- **Backend**: Railway ($5 tier), root directory = `backend/`, env var `CENSUS_API_KEY` required
+- Config files: `vercel.json` (repo root), `backend/railway.toml`, `backend/Procfile`, `backend/nixpacks.toml`
+- Railway binds to `$PORT` env var automatically; backend uses `uvicorn --host 0.0.0.0 --port $PORT`
+- CORS: defaults to `["*"]`; set `CORS_ORIGINS` env var on Railway to restrict in production
 
 ## File Structure (Backend)
 - `main.py` - App entry point, lifespan management, CORS, route registration
@@ -118,5 +120,4 @@ npm run start   # Serve production build
 - `react-simple-maps` has peer dep warning with React 19 (installed with `--legacy-peer-deps`)
 - Industry page top-regions table fetches county names individually (20 API calls) — could be optimized with a bulk lookup endpoint
 - Compare page fetches all data per-region independently — could be optimized with a batch endpoint
-- ZIP-level analysis: backend supports `geo_type=zip` for all analysis endpoints (LQ, shift-share, diversification, multiplier, trends); frontend does not yet have ZIP UI support
 - ZIP-level demographics (ACS) not available — demographics endpoint only supports county and MSA

@@ -31,7 +31,12 @@ class Settings(BaseSettings):
     acs_year_start: int = 2012
     acs_year_end: int = 2023
 
-    model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
+    # Railway/production sets env vars directly; .env file used for local dev only
+    model_config = {
+        "env_file": ".env",
+        "env_file_encoding": "utf-8",
+        "extra": "ignore",
+    }
 
 
 # Singleton instance
