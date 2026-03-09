@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.1] - 2026-03-09
+
+### Changed
+- **README rewrite** — Replaced wall-of-text README with a cleaner, scannable layout: badge row, analysis summary table, tech stack table, streamlined project structure, deployment table. Removed full file trees and verbose API endpoint table (available at `/docs`).
+
 ## [1.5.0] - 2026-03-09
 
 ### Changed
