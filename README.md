@@ -1,145 +1,120 @@
-# EconBase - Interactive Economic Base Analysis
+# EconBase
 
-A web application for analyzing the economic base of US counties, MSAs, and ZIP codes using Census Bureau data. Provides Location Quotient, Shift-Share, Diversification Index, and Economic Base Multiplier analyses.
+**Interactive economic base analysis for U.S. counties, metro areas, and ZIP codes.**
 
-## Features
+Explore Location Quotients, Shift-Share decompositions, diversification indices, and employment trends — powered by real-time Census Bureau data.
 
-- **Location Quotient (LQ)** - Identify industries concentrated above the national average
-- **Shift-Share Analysis** - Decompose employment change into national, industry, and competitive effects
-- **Diversification Index** - Measure how diversified a local economy is (1 - HHI)
-- **Economic Base Multiplier** - Estimate total jobs supported per basic-sector job
-- **Employment Trends** - Time series of employment, establishments, and payroll
-- **Demographics** - ACS 5-year population, income, and education profiles
-- **Interactive Map** - Data-driven US county choropleth colored by employment or LQ
-- **Multi-Region Compare** - Side-by-side comparison of up to 4 regions (counties, MSAs, or ZIPs)
-- **Industry Explorer** - National geographic distribution of any NAICS industry with choropleth map
-- **County/MSA/ZIP Search** - Fuzzy search across 3,000+ counties, 935 MSAs, and 5-digit ZIP codes
-- **NAICS Levels 2-6** - Analyze at any industry detail level
+<!-- TODO: Replace with actual screenshot -->
+<!-- ![EconBase Screenshot](docs/screenshot.png) -->
 
-## Architecture
+[![Frontend](https://img.shields.io/badge/frontend-Next.js_16-black?logo=next.js)](frontend/)
+[![Backend](https://img.shields.io/badge/backend-FastAPI-009688?logo=fastapi)](backend/)
+[![Data](https://img.shields.io/badge/data-Census_Bureau_API-1a73e8)](https://www.census.gov/data/developers.html)
+[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-1. **Next.js frontend** (`frontend/`) - Interactive web app with maps, charts, and data tables
-2. **FastAPI backend** (`backend/`) - API server that queries the Census Bureau API in real-time
+---
 
-### Frontend Structure
+## What It Does
 
-```
-frontend/src/
-├── app/
-│   ├── layout.tsx               # Root layout with header, footer, providers
-│   ├── page.tsx                 # Landing page with map + search
-│   ├── explore/[fips]/page.tsx  # Region analysis (4 tabs: LQ, shift-share, trends, demographics)
-│   ├── compare/page.tsx         # Multi-region side-by-side comparison
-│   ├── industry/[naics]/page.tsx # Industry geographic distribution
-│   ├── about/page.tsx           # Methodology + data sources
-│   └── providers.tsx            # React Query provider
-├── components/
-│   ├── ui/                      # shadcn/ui components
-│   ├── layout/                  # Header + Footer
-│   ├── map/                     # US county choropleth map
-│   ├── charts/                  # LQ bar chart, population pyramid, income dist, education donut
-│   ├── explore/                 # Overview cards, LQ tab, shift-share, trends, demographics
-│   ├── compare/                 # Region selector, comparison table, LQ comparison chart
-│   ├── industry/                # Industry map, top regions table
-│   └── search/                  # Autocomplete region search (county/MSA/ZIP toggle)
-├── hooks/use-api.ts             # React Query hooks
-├── lib/api.ts                   # Typed API client
-└── types/index.ts               # TypeScript interfaces
-```
+EconBase answers the question: **what industries define a local economy, and how is it changing?**
 
-### Backend Structure
+| Analysis | What It Tells You |
+|---|---|
+| **Location Quotient** | Which industries are more concentrated here than the national average |
+| **Shift-Share** | Whether job growth is from national trends, industry mix, or local competitive advantage |
+| **Diversification Index** | How dependent the economy is on a few industries vs. broadly diversified |
+| **Economic Base Multiplier** | How many total jobs are supported per export-sector job |
+| **Employment Trends** | How employment, establishments, and payroll have changed over time |
+| **Demographics** | Population, income distribution, and education attainment (ACS 5-year) |
 
-```
-backend/
-├── main.py                     # FastAPI app entry point
-├── requirements.txt
-├── .env                        # Census API key (gitignored)
-└── app/
-    ├── config.py               # Pydantic Settings
-    ├── dependencies.py         # Shared dependencies (Census client, FIPS)
-    ├── census/
-    │   ├── client.py           # Async HTTP client with TTL caching
-    │   ├── cbp.py              # County Business Patterns service
-    │   └── acs.py              # American Community Survey service
-    ├── analysis/
-    │   ├── location_quotient.py
-    │   ├── shift_share.py
-    │   ├── diversification.py
-    │   └── multiplier.py
-    ├── geography/
-    │   ├── fips.py             # FIPS lookup + fuzzy search
-    │   ├── msa.py              # MSA name search
-    │   └── zip_lookup.py       # ZIP code validation
-    ├── routes/
-    │   ├── analysis.py         # /api/analysis/* endpoints
-    │   ├── geography.py        # /api/geography/* endpoints
-    │   ├── demographics.py     # /api/demographics/* endpoints
-    │   └── metadata.py         # /api/metadata/* endpoints
-    └── models/
-        └── schemas.py          # Pydantic response models
-```
+Supports **3,200+ counties**, **935 metro areas**, and **ZIP codes**, with NAICS industry detail from 2-digit sectors down to 6-digit national industries.
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | Next.js 16, TypeScript, Tailwind CSS v4, shadcn/ui, Recharts, react-simple-maps |
+| Backend | FastAPI, httpx (async), Pydantic, pandas |
+| Data | Census Bureau CBP + ACS APIs, queried in real-time with in-memory TTL caching |
+| Hosting | Vercel (frontend) · Railway (backend) |
+
+---
 
 ## Getting Started
+
+### Prerequisites
+
+- Node.js 18+ and npm
+- Python 3.11+
+- [Census API key](https://api.census.gov/data/key_signup.html) (free)
+
+### Backend
+
+```bash
+cd backend
+cp .env.example .env          # Add your CENSUS_API_KEY
+python3 -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8000
+```
+
+API docs at [localhost:8000/docs](http://localhost:8000/docs).
 
 ### Frontend
 
 ```bash
 cd frontend
+cp .env.example .env.local    # Points to localhost:8000 by default
 npm install --legacy-peer-deps
-npm run dev          # Start dev server on http://localhost:3000
+npm run dev
 ```
 
-Requires the backend API running at `http://localhost:8000` (configurable via `NEXT_PUBLIC_API_URL` in `.env.local`).
+Open [localhost:3000](http://localhost:3000).
 
-### Backend API
+---
 
-```bash
-cd backend
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
+## Project Structure
+
+```
+├── frontend/          Next.js app (pages, components, hooks, API client)
+│   └── src/
+│       ├── app/       Pages: landing, explore/[fips], compare, industry/[naics], about
+│       ├── components/ Map, charts, search, explore tabs, compare views
+│       ├── hooks/     React Query hooks for all endpoints
+│       └── lib/       Typed API client with geography normalization
+│
+├── backend/           FastAPI server
+│   ├── app/
+│   │   ├── census/    Async Census API client (CBP + ACS) with TTL cache
+│   │   ├── analysis/  LQ, shift-share, diversification, multiplier calculations
+│   │   ├── geography/ FIPS, MSA, and ZIP code search/lookup
+│   │   └── routes/    API route handlers
+│   └── main.py        App entry point
 ```
 
-The API docs are available at `http://localhost:8000/docs` (Swagger UI) and `http://localhost:8000/redoc`.
+---
 
-### API Endpoints
+## Deployment
 
-| Endpoint | Description |
-|----------|-------------|
-| `GET /api/geography/search?q=san+diego` | Search counties by name |
-| `GET /api/geography/search?q=92101&geo_type=zip` | Search ZIP codes |
-| `GET /api/geography/{fips}` | County info by FIPS code |
-| `GET /api/analysis/lq?fips=06073&year=2021&naics_level=2` | Location Quotient |
-| `GET /api/analysis/shift-share?fips=06073&year_start=2015&year_end=2021` | Shift-Share |
-| `GET /api/analysis/diversification?fips=06073&year=2021` | Diversification Index |
-| `GET /api/analysis/multiplier?fips=06073&year=2021` | Economic Base Multiplier |
-| `GET /api/analysis/trends?fips=06073&naics=72&start_year=2015&end_year=2021` | Time series |
-| `GET /api/analysis/map-data?year=2021&naics=72&metric=lq` | Choropleth data |
-| `GET /api/demographics/{fips}?year=2022` | ACS demographic profile |
-| `GET /api/metadata/years` | Available data years |
-| `GET /api/metadata/naics?level=2` | NAICS code list |
+| Service | Directory | Key Config |
+|---|---|---|
+| **Vercel** (frontend) | `frontend/` | Set env var `NEXT_PUBLIC_API_URL` to your backend URL |
+| **Railway** (backend) | `backend/` | Set env var `CENSUS_API_KEY` |
 
-### Deployment
+See `.env.example` in each directory for all options.
 
-**Frontend (Vercel):**
-1. Import repo on [vercel.com](https://vercel.com)
-2. Set **Root Directory** to `frontend`
-3. Add environment variable: `NEXT_PUBLIC_API_URL` = your Railway backend URL
-
-**Backend (Railway):**
-1. Create new project on [railway.app](https://railway.app)
-2. Set **Root Directory** to `backend`
-3. Add environment variables: `CENSUS_API_KEY` (required), optionally `CORS_ORIGINS` (JSON array of allowed origins)
-
-See `.env.example` files in each directory for all available configuration options.
+---
 
 ## Data Sources
 
-- **County Business Patterns (CBP)**: [Census Bureau CBP API](https://api.census.gov/data/2021/cbp) - Employment, establishments, payroll by industry (2012-2023). Also serves ZIP code-level data (ZBP) via `zip code` geography key.
-- **American Community Survey (ACS)**: [Census Bureau ACS API](https://api.census.gov/data/2022/acs/acs5) - Demographics, income, education
-- **County FIPS codes**: [kjhealy/fips-codes](https://github.com/kjhealy/fips-codes)
+- [County Business Patterns (CBP)](https://www.census.gov/programs-surveys/cbp.html) — Employment, establishments, payroll by industry (2012–2023). Serves county, MSA, and ZIP data.
+- [American Community Survey (ACS) 5-Year](https://www.census.gov/programs-surveys/acs) — Demographics, income, education (county and MSA).
+- [FIPS county codes](https://github.com/kjhealy/fips-codes) — Geographic identifiers for 3,200+ U.S. counties.
+
+---
 
 ## License
 
-MIT License
+[MIT](LICENSE)
