@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
 import Header from "@/components/layout/header";
+import ApiStatusBanner from "@/components/layout/api-status-banner";
 import Footer from "@/components/layout/footer";
 
 const inter = Inter({
@@ -33,6 +34,7 @@ export default function RootLayout({
       >
         <Providers>
           <Header />
+          <ApiStatusBanner />
           <main className="flex-1">{children}</main>
           <Footer />
         </Providers>

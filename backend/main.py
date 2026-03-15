@@ -76,7 +76,7 @@ app = FastAPI(
         "Provides Location Quotient, Shift-Share, Diversification, "
         "and Economic Base Multiplier analyses using Census Bureau data."
     ),
-    version="1.0.0",
+    version="1.5.1",
     lifespan=lifespan,
     docs_url="/docs",
     redoc_url="/redoc",
@@ -103,7 +103,7 @@ async def root() -> dict[str, str]:
     """Health check / root endpoint."""
     return {
         "name": "EconBase API",
-        "version": "1.0.0",
+        "version": "1.5.1",
         "status": "running",
         "docs": "/docs",
     }

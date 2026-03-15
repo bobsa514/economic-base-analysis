@@ -7,6 +7,7 @@ Supports both county-level and MSA-level geography via the `geo_type`
 query parameter (default: "county").
 """
 
+import asyncio
 import logging
 
 from fastapi import APIRouter, HTTPException, Query
@@ -275,6 +276,51 @@ async def multiplier(
     )
 
 
+async def _fetch_trend_year(client, year, fips, naics, geo_type):
+    """Fetch trend data for a single year."""
+    try:
+        naics_var = await get_naics_variable(client, year)
+        url = settings.census_cbp_base.format(year=year)
+
+        # Build geography params based on geo_type
+        if geo_type == "zip":
+            params = {
+                "get": f"{naics_var},{naics_var}_LABEL,EMP,ESTAB,PAYANN",
+                "for": f"zip code:{fips}",
+                naics_var: naics,
+            }
+        elif geo_type == "msa":
+            params = {
+                "get": f"{naics_var},{naics_var}_LABEL,EMP,ESTAB,PAYANN",
+                "for": f"{MSA_GEO_KEY}:{fips}",
+                naics_var: naics,
+            }
+        else:
+            state_fips = fips[:2]
+            county_fips = fips[2:]
+            params = {
+                "get": f"{naics_var},{naics_var}_LABEL,EMP,ESTAB,PAYANN",
+                "for": f"county:{county_fips}",
+                "in": f"state:{state_fips}",
+                naics_var: naics,
+            }
+
+        records = await client.fetch(url, params)
+        if records:
+            row = records[0]
+            naics_var_label = f"{naics_var}_LABEL"
+            return year, row.get(naics_var_label, ""), TrendPoint(
+                year=year,
+                employment=row.get("EMP"),
+                establishments=row.get("ESTAB"),
+                annual_payroll=row.get("PAYANN"),
+            )
+        return year, "", TrendPoint(year=year, employment=None, establishments=None, annual_payroll=None)
+    except httpx.HTTPStatusError:
+        logger.warning("Could not fetch trends data for year %d", year)
+        return year, "", TrendPoint(year=year, employment=None, establishments=None, annual_payroll=None)
+
+
 @router.get(
     "/trends",
     response_model=TrendsResponse,
@@ -305,69 +351,16 @@ async def trends(
 
     client = get_census_client()
 
-    data_points: list[TrendPoint] = []
-    naics_label = ""
+    # Fetch all years in parallel
+    results = await asyncio.gather(*[
+        _fetch_trend_year(client, year, fips, naics, geo_type)
+        for year in range(start_year, end_year + 1)
+    ])
 
-    for year in range(start_year, end_year + 1):
-        try:
-            naics_var = await get_naics_variable(client, year)
-
-            url = settings.census_cbp_base.format(year=year)
-
-            # Build geography params based on geo_type
-            if geo_type == "zip":
-                # ZIP code data is available within the CBP endpoint
-                params = {
-                    "get": f"{naics_var},{naics_var}_LABEL,EMP,ESTAB,PAYANN",
-                    "for": f"zip code:{fips}",
-                    naics_var: naics,
-                }
-            elif geo_type == "msa":
-                params = {
-                    "get": f"{naics_var},{naics_var}_LABEL,EMP,ESTAB,PAYANN",
-                    "for": f"{MSA_GEO_KEY}:{fips}",
-                    naics_var: naics,
-                }
-            else:
-                state_fips = fips[:2]
-                county_fips = fips[2:]
-                params = {
-                    "get": f"{naics_var},{naics_var}_LABEL,EMP,ESTAB,PAYANN",
-                    "for": f"county:{county_fips}",
-                    "in": f"state:{state_fips}",
-                    naics_var: naics,
-                }
-
-            records = await client.fetch(url, params)
-
-            if records:
-                row = records[0]
-                if not naics_label:
-                    naics_label = row.get(f"{naics_var}_LABEL", "")
-
-                data_points.append(TrendPoint(
-                    year=year,
-                    employment=row.get("EMP"),
-                    establishments=row.get("ESTAB"),
-                    annual_payroll=row.get("PAYANN"),
-                ))
-            else:
-                data_points.append(TrendPoint(
-                    year=year,
-                    employment=None,
-                    establishments=None,
-                    annual_payroll=None,
-                ))
-
-        except httpx.HTTPStatusError:
-            # Year may not be available - add null entry
-            logger.warning("Could not fetch trends data for year %d", year)
-            data_points.append(TrendPoint(
-                year=year,
-                employment=None,
-                establishments=None,
-                annual_payroll=None,
-            ))
+    # Sort by year and extract data
+    results = sorted(results, key=lambda x: x[0])
+    naics_label = next((r[1] for r in results if r[1]), "")
+    data_points = [r[2] for r in results]
 
     return TrendsResponse(
         fips=fips,

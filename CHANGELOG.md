@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.0] - 2026-03-14
+
+### Added
+- **About page educational content** — Comprehensive guide for non-economists: "How to Use EconBase" step-by-step walkthrough, NAICS code explainer with hierarchy table (2-to-6-digit breakdown using restaurant industry), expanded all 5 analytical tools with formulas and examples, glossary of 10 key terms, table of contents. Removed stale "Coming Soon" badges.
+- **Backend unit tests (29 tests)** — pytest test suite covering all analysis modules: LQ, Shift-Share, Diversification, Multiplier, and Census client parsing. Uses mock data with known expected values.
+- **GitHub Actions CI pipeline** — Automated backend tests (Python 3.12 + pytest) and frontend build verification (Node 20 + Next.js) on push/PR to main.
+- **Mobile hamburger navigation** — Responsive header collapses to hamburger menu on small screens with slide-down panel, click-outside dismiss, and route-change auto-close.
+- **Cold-start loading banner** — Detects Railway backend wake-up delay; shows "Connecting to data server..." banner after 2s, auto-dismisses on success, shows error after 30s timeout.
+
+### Changed
+- **Parallelized Census API calls** — Shift-Share fetches 4 datasets concurrently via `asyncio.gather()` (was sequential). Trends endpoint fetches all years in parallel (e.g., 12 years at once instead of one-by-one). Significant performance improvement.
+- **App version synced** — `main.py` version updated from 1.0.0 to 1.5.1 (was stale since initial release).
+
+### Fixed
+- **`calculate_lq` return type** — Type annotation corrected from `list[dict]` to `dict[str, Any]` to match actual return shape.
+- **Frontend TypeScript types** — Added missing `geo_type` field to all 7 response interfaces (LQ, ShiftShare, Diversification, Multiplier, Trends, Demographics, MapData) to match backend Pydantic schemas.
+
 ## [1.5.1] - 2026-03-09
 
 ### Changed
