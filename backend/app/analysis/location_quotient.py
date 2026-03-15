@@ -35,7 +35,7 @@ async def calculate_lq(
     year: int,
     naics_level: int,
     geo_type: str = "county",
-) -> list[dict[str, Any]]:
+) -> dict[str, Any]:
     """Calculate Location Quotients for all industries at a given NAICS level.
 
     Args:

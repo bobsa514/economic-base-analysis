@@ -17,6 +17,7 @@ Formulas for each industry i:
     RC_i = e_i(t0) * (e_i(t1)/e_i(t0) - E_i(t1)/E_i(t0))
 """
 
+import asyncio
 from typing import Any
 
 from app.census.client import CensusClient
@@ -67,19 +68,18 @@ async def calculate_shift_share(
         - summary: Aggregate NG, IM, RC, and total_change
         - industries: Per-industry breakdown with all three components
     """
-    # Fetch data for both years
-    county_t0 = filter_by_naics_level(
-        await _fetch_local_data(client, fips, year_start, geo_type), naics_level
+    # Fetch all 4 datasets in parallel (local + national for both years)
+    local_t0_raw, local_t1_raw, national_t0_raw, national_t1_raw = await asyncio.gather(
+        _fetch_local_data(client, fips, year_start, geo_type),
+        _fetch_local_data(client, fips, year_end, geo_type),
+        fetch_cbp_national(client, year_start),
+        fetch_cbp_national(client, year_end),
     )
-    county_t1 = filter_by_naics_level(
-        await _fetch_local_data(client, fips, year_end, geo_type), naics_level
-    )
-    national_t0 = filter_by_naics_level(
-        await fetch_cbp_national(client, year_start), naics_level
-    )
-    national_t1 = filter_by_naics_level(
-        await fetch_cbp_national(client, year_end), naics_level
-    )
+
+    county_t0 = filter_by_naics_level(local_t0_raw, naics_level)
+    county_t1 = filter_by_naics_level(local_t1_raw, naics_level)
+    national_t0 = filter_by_naics_level(national_t0_raw, naics_level)
+    national_t1 = filter_by_naics_level(national_t1_raw, naics_level)
 
     # Build employment lookup dicts
     def emp_dict(records: list[dict]) -> dict[str, int]:

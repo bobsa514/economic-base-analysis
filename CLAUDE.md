@@ -38,7 +38,12 @@ Portfolio project with a FastAPI backend and Next.js 15 frontend.
 cd backend
 source venv/bin/activate
 uvicorn main:app --reload --port 8000    # Dev server
+python -m pytest tests/ -v               # Run unit tests (29 tests)
 ```
+
+## CI/CD
+- **GitHub Actions**: `.github/workflows/ci.yml` — runs backend pytest + frontend build on push/PR to main
+- Tests require `CENSUS_API_KEY` env var (set to dummy value in CI since tests use mocks)
 
 ## Deployment
 - **Frontend**: Vercel (free tier), root directory = `frontend/`, env var `NEXT_PUBLIC_API_URL` points to Railway backend
@@ -46,6 +51,7 @@ uvicorn main:app --reload --port 8000    # Dev server
 - Config files: `vercel.json` (repo root), `backend/railway.toml`, `backend/Procfile`, `backend/nixpacks.toml`
 - Railway binds to `$PORT` env var automatically; backend uses `uvicorn --host 0.0.0.0 --port $PORT`
 - CORS: defaults to `["*"]`; set `CORS_ORIGINS` env var on Railway to restrict in production
+- **Cold-start**: Railway hobby tier sleeps after inactivity. Frontend shows "Connecting to data server..." banner via `/health` check when backend is waking up.
 
 ## File Structure (Backend)
 - `main.py` - App entry point, lifespan management, CORS, route registration
@@ -54,7 +60,8 @@ uvicorn main:app --reload --port 8000    # Dev server
 - `app/census/client.py` - Async HTTP client with TTL cache
 - `app/census/cbp.py` - CBP data fetching for county, MSA, ZIP, and national + NAICS level detection
 - `app/census/acs.py` - ACS demographic data (profile + detailed tables), supports county and MSA
-- `app/analysis/` - Pure calculation modules (LQ, shift-share, diversification, multiplier) - all support geo_type param (county, msa, zip)
+- `app/analysis/` - Pure calculation modules (LQ, shift-share, diversification, multiplier) - all support geo_type param (county, msa, zip). Shift-share and trends use `asyncio.gather()` for parallel Census API calls.
+- `tests/` - pytest unit tests for all analysis modules + Census client parsing (29 tests)
 - `app/geography/fips.py` - County FIPS search (loaded at startup)
 - `app/geography/msa.py` - MSA name search (loaded at startup from Census ACS API)
 - `app/geography/zip_lookup.py` - ZIP code validation and search (on-the-fly, no startup data needed)
@@ -92,7 +99,7 @@ uvicorn main:app --reload --port 8000    # Dev server
 
 ### Frontend File Structure
 - `src/app/` - Pages: landing (`page.tsx`), explore (`explore/[fips]/page.tsx`), compare (`compare/page.tsx`), industry (`industry/[naics]/page.tsx`), about
-- `src/components/layout/` - Header and footer
+- `src/components/layout/` - Header (with mobile hamburger nav), footer, API status banner (cold-start detection)
 - `src/components/map/` - US county map (client-only) + map-section wrapper
 - `src/components/charts/` - LQ bar chart, population pyramid, income distribution, education donut (Recharts)
 - `src/components/explore/` - Overview cards, LQ tab, shift-share tab, trends tab, demographics tab

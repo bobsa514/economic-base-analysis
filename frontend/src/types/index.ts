@@ -34,6 +34,7 @@ export interface LQIndustry {
 
 export interface LQResponse {
   fips: string;
+  geo_type: string;
   year: number;
   naics_level: number;
   total_employment: number;
@@ -66,6 +67,7 @@ export interface ShiftShareIndustry {
 
 export interface ShiftShareResponse {
   fips: string;
+  geo_type: string;
   summary: ShiftShareSummary;
   industries: ShiftShareIndustry[];
 }
@@ -81,6 +83,7 @@ export interface DiversificationIndustry {
 
 export interface DiversificationResponse {
   fips: string;
+  geo_type: string;
   year: number;
   hhi: number;
   diversification_index: number;
@@ -101,6 +104,7 @@ export interface BasicIndustry {
 
 export interface MultiplierResponse {
   fips: string;
+  geo_type: string;
   year: number;
   multiplier: number | null;
   total_employment: number;
@@ -121,6 +125,7 @@ export interface TrendPoint {
 
 export interface TrendsResponse {
   fips: string;
+  geo_type: string;
   naics: string;
   naics_label: string;
   data: TrendPoint[];
@@ -146,6 +151,7 @@ export interface EducationEntry {
 
 export interface DemographicsResponse {
   fips: string;
+  geo_type: string;
   year: number;
   total_population: number | null;
   median_age: number | null;
@@ -188,6 +194,7 @@ export interface MapDataResponse {
   year: number;
   naics: string;
   metric: string;
+  geo_type: string;
   count: number;
   data: MapDataPoint[];
 }
