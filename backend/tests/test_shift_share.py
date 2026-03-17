@@ -103,8 +103,8 @@ async def test_summary_totals_match_industry_sums():
 
 
 @pytest.mark.asyncio
-async def test_empty_data_returns_empty_industries():
-    """When no local data is returned, industries list should be empty."""
+async def test_empty_data_returns_complete_summary():
+    """When no local data is returned, summary should have zeros and industries should be empty."""
     patch_local, patch_national = _patch_fetchers([], [], [], [])
     with patch_local, patch_national:
         result = await calculate_shift_share(
@@ -112,7 +112,12 @@ async def test_empty_data_returns_empty_industries():
         )
 
     assert result["industries"] == []
-    assert result["summary"] == {}
+    assert result["summary"]["national_growth"] == 0
+    assert result["summary"]["industry_mix"] == 0
+    assert result["summary"]["regional_competitive"] == 0
+    assert result["summary"]["total_change"] == 0
+    assert result["summary"]["year_start"] == 2018
+    assert result["summary"]["year_end"] == 2021
 
 
 @pytest.mark.asyncio

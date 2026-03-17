@@ -104,7 +104,17 @@ async def calculate_shift_share(
     e_total_t1 = big_e_t1.get("00", 0)
 
     if e_total_t0 == 0:
-        return {"summary": {}, "industries": []}
+        return {
+            "summary": {
+                "national_growth": 0,
+                "industry_mix": 0,
+                "regional_competitive": 0,
+                "total_change": 0,
+                "year_start": year_start,
+                "year_end": year_end,
+            },
+            "industries": [],
+        }
 
     national_growth_rate = e_total_t1 / e_total_t0
 

@@ -40,7 +40,7 @@ async def test_basic_lq_calculation(local_data, national_data):
 
 @pytest.mark.asyncio
 async def test_empty_data_returns_empty():
-    """When no local data is returned, result should be an empty list."""
+    """When no local data is returned, result should be a dict with zero employment."""
     with (
         patch("app.analysis.location_quotient.fetch_cbp_county", new_callable=AsyncMock, return_value=[]),
         patch("app.analysis.location_quotient.fetch_cbp_national", new_callable=AsyncMock, return_value=[]),
@@ -49,8 +49,7 @@ async def test_empty_data_returns_empty():
             client=None, fips="00000", year=2021, naics_level=2
         )
 
-    # When totals are 0, the function returns an empty list
-    assert result == []
+    assert result == {"total_employment": 0, "industries": []}
 
 
 @pytest.mark.asyncio
