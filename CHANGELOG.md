@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.1] - 2026-03-17
+
+### Fixed
+- **P0: LQ empty-data crash** — `calculate_lq` now returns `{"total_employment": 0, "industries": []}` instead of `[]` when no employment data exists, preventing `TypeError` in the route handler
+- **P0: Shift-share empty-summary crash** — `calculate_shift_share` now returns a complete summary dict with zeros instead of `{}`, preventing `KeyError` when constructing the Pydantic response
+- **P1: Industry page NAICS level detection** — Hyphenated 2-digit sector codes like "31-33" were misidentified as 5-digit codes due to string length check; now uses proper detection logic matching the backend
+- **P1: Compare page NAICS level selector** — The NAICS level dropdown in the LQ comparison chart was only changing local state without triggering a data refetch; now wired to page-level state that drives the API hooks
+- **P1: Demographics ZIP hidden request** — Demographics tab was sending an incorrect county-mode API request for ZIP code regions before showing the "not available" message; now skips the API call entirely
+- **P2: All 10 ESLint errors resolved** — Extracted `SortIcon` and `ColumnHeader` as standalone components (React Compiler "component created during render" rule), aligned `useMemo` deps, replaced `setState`-in-effect with state-based pathname tracking in mobile nav
+- **P3: About page stale tab reference** — Updated "Browse the Overview tab" to "Browse the Economic Base tab" to match current explore page tab names
+- **P3: Frontend error messages** — API client now parses FastAPI response body to surface `detail` field in error messages instead of generic "Bad Request"
+
 ## [1.6.0] - 2026-03-14
 
 ### Added
