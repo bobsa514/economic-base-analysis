@@ -67,6 +67,9 @@ function ComparePageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  // NAICS level — lifted from LQComparisonChart so the selector triggers a refetch
+  const [naicsLevel, setNaicsLevel] = useState(DEFAULT_NAICS_LEVEL);
+
   // Parse initial region entries from URL (format: fips or fips:geo)
   const [regionEntries, setRegionEntries] = useState<RegionEntry[]>(() => {
     const param = searchParams.get("regions");
@@ -87,10 +90,10 @@ function ComparePageInner() {
   const [regions, setRegions] = useState<CountyInfo[]>([]);
 
   // Fetch data for each region slot (up to 4), passing geoType
-  const r0 = useRegionCompareData(regionEntries[0]?.fips ?? "", DEFAULT_NAICS_LEVEL, regionEntries[0]?.geoType);
-  const r1 = useRegionCompareData(regionEntries[1]?.fips ?? "", DEFAULT_NAICS_LEVEL, regionEntries[1]?.geoType);
-  const r2 = useRegionCompareData(regionEntries[2]?.fips ?? "", DEFAULT_NAICS_LEVEL, regionEntries[2]?.geoType);
-  const r3 = useRegionCompareData(regionEntries[3]?.fips ?? "", DEFAULT_NAICS_LEVEL, regionEntries[3]?.geoType);
+  const r0 = useRegionCompareData(regionEntries[0]?.fips ?? "", naicsLevel, regionEntries[0]?.geoType);
+  const r1 = useRegionCompareData(regionEntries[1]?.fips ?? "", naicsLevel, regionEntries[1]?.geoType);
+  const r2 = useRegionCompareData(regionEntries[2]?.fips ?? "", naicsLevel, regionEntries[2]?.geoType);
+  const r3 = useRegionCompareData(regionEntries[3]?.fips ?? "", naicsLevel, regionEntries[3]?.geoType);
   const allData = [r0, r1, r2, r3].slice(0, regionEntries.length);
 
   // Sync region info from API responses back into the regions list
@@ -253,7 +256,11 @@ function ComparePageInner() {
           <ComparisonTable regionsData={regionsForTable} />
 
           {/* LQ comparison + industry structure charts */}
-          <LQComparisonChart regionsLQData={regionsForLQ} />
+          <LQComparisonChart
+            regionsLQData={regionsForLQ}
+            naicsLevel={naicsLevel}
+            onNaicsLevelChange={setNaicsLevel}
+          />
         </div>
       )}
     </div>
