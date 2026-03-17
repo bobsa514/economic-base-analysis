@@ -51,6 +51,25 @@ type SortField =
   | "regional_competitive";
 type SortDir = "asc" | "desc";
 
+/** Sort direction indicator icon for shift-share table */
+function ShiftShareSortIcon({
+  field,
+  sortField,
+  sortDir,
+}: {
+  field: SortField;
+  sortField: SortField;
+  sortDir: SortDir;
+}) {
+  if (sortField !== field)
+    return <ArrowUpDown className="ml-1 inline h-3 w-3 text-slate-400" />;
+  return sortDir === "asc" ? (
+    <ChevronUp className="ml-1 inline h-3 w-3 text-blue-600" />
+  ) : (
+    <ChevronDown className="ml-1 inline h-3 w-3 text-blue-600" />
+  );
+}
+
 /**
  * Formats a number with sign and commas for display.
  * e.g., 12345 -> "+12,345", -500 -> "-500"
@@ -99,7 +118,7 @@ export default function ShiftShareTab({ fips, geoType }: ShiftShareTabProps) {
       const bNum = bVal as number;
       return sortDir === "asc" ? aNum - bNum : bNum - aNum;
     });
-  }, [data?.industries, sortField, sortDir]);
+  }, [data, sortField, sortDir]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -108,16 +127,6 @@ export default function ShiftShareTab({ fips, geoType }: ShiftShareTabProps) {
       setSortField(field);
       setSortDir("desc");
     }
-  };
-
-  const SortIcon = ({ field }: { field: SortField }) => {
-    if (sortField !== field)
-      return <ArrowUpDown className="ml-1 inline h-3 w-3 text-slate-400" />;
-    return sortDir === "asc" ? (
-      <ChevronUp className="ml-1 inline h-3 w-3 text-blue-600" />
-    ) : (
-      <ChevronDown className="ml-1 inline h-3 w-3 text-blue-600" />
-    );
   };
 
   // Prepare stacked bar chart data (top 15 by absolute actual_change)
@@ -138,7 +147,7 @@ export default function ShiftShareTab({ fips, geoType }: ShiftShareTabProps) {
         regional_competitive: Math.round(ind.regional_competitive),
         actual_change: ind.actual_change,
       }));
-  }, [data?.industries]);
+  }, [data]);
 
   return (
     <div className="space-y-6">
@@ -497,7 +506,7 @@ export default function ShiftShareTab({ fips, geoType }: ShiftShareTabProps) {
                         onClick={() => handleSort(col.field)}
                       >
                         {col.label}
-                        <SortIcon field={col.field} />
+                        <ShiftShareSortIcon field={col.field} sortField={sortField} sortDir={sortDir} />
                       </th>
                     ))}
                   </tr>

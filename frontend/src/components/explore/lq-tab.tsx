@@ -62,6 +62,67 @@ type SortField =
   | "national_share";
 type SortDir = "asc" | "desc";
 
+/** Sort direction indicator icon */
+function SortIcon({
+  field,
+  sortField,
+  sortDir,
+}: {
+  field: SortField;
+  sortField: SortField;
+  sortDir: SortDir;
+}) {
+  if (sortField !== field)
+    return <ArrowUpDown className="ml-1 inline h-3 w-3 text-slate-400" />;
+  return sortDir === "asc" ? (
+    <ChevronUp className="ml-1 inline h-3 w-3 text-blue-600" />
+  ) : (
+    <ChevronDown className="ml-1 inline h-3 w-3 text-blue-600" />
+  );
+}
+
+/** Sortable column header with optional info tooltip */
+function ColumnHeader({
+  field,
+  label,
+  tooltip,
+  sortField,
+  sortDir,
+  onSort,
+}: {
+  field: SortField;
+  label: string;
+  tooltip?: string;
+  sortField: SortField;
+  sortDir: SortDir;
+  onSort: (field: SortField) => void;
+}) {
+  return (
+    <th
+      className="cursor-pointer px-4 py-3 text-left font-medium text-slate-600 select-none hover:text-slate-900"
+      onClick={() => onSort(field)}
+    >
+      <span className="inline-flex items-center gap-1">
+        {label}
+        {tooltip && (
+          <Tooltip>
+            <TooltipTrigger
+              onClick={(e) => e.stopPropagation()}
+              className="inline-flex"
+            >
+              <HelpCircle className="h-3.5 w-3.5 text-slate-400 hover:text-blue-500" />
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-xs">
+              {tooltip}
+            </TooltipContent>
+          </Tooltip>
+        )}
+        <SortIcon field={field} sortField={sortField} sortDir={sortDir} />
+      </span>
+    </th>
+  );
+}
+
 /**
  * LQ Tab content: year/NAICS selectors, filters, horizontal bar chart, and sortable data table.
  * Includes explanatory tooltips on column headers and employment/LQ filters.
@@ -129,7 +190,7 @@ export default function LQTab({ fips, geoType }: LQTabProps) {
       const bNum = bVal as number;
       return sortDir === "asc" ? aNum - bNum : bNum - aNum;
     });
-  }, [data?.industries, sortField, sortDir, minEmployment, lqPreset, minLQ, maxLQ]);
+  }, [data, sortField, sortDir, minEmployment, lqPreset, minLQ, maxLQ]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -138,16 +199,6 @@ export default function LQTab({ fips, geoType }: LQTabProps) {
       setSortField(field);
       setSortDir("desc");
     }
-  };
-
-  const SortIcon = ({ field }: { field: SortField }) => {
-    if (sortField !== field)
-      return <ArrowUpDown className="ml-1 inline h-3 w-3 text-slate-400" />;
-    return sortDir === "asc" ? (
-      <ChevronUp className="ml-1 inline h-3 w-3 text-blue-600" />
-    ) : (
-      <ChevronDown className="ml-1 inline h-3 w-3 text-blue-600" />
-    );
   };
 
   /** Color badge for LQ value */
@@ -176,40 +227,6 @@ export default function LQTab({ fips, geoType }: LQTabProps) {
       </Badge>
     );
   };
-
-  /** Renders a column header label, optionally with an info tooltip */
-  const ColumnHeader = ({
-    field,
-    label,
-    tooltip,
-  }: {
-    field: SortField;
-    label: string;
-    tooltip?: string;
-  }) => (
-    <th
-      className="cursor-pointer px-4 py-3 text-left font-medium text-slate-600 select-none hover:text-slate-900"
-      onClick={() => handleSort(field)}
-    >
-      <span className="inline-flex items-center gap-1">
-        {label}
-        {tooltip && (
-          <Tooltip>
-            <TooltipTrigger
-              onClick={(e) => e.stopPropagation()}
-              className="inline-flex"
-            >
-              <HelpCircle className="h-3.5 w-3.5 text-slate-400 hover:text-blue-500" />
-            </TooltipTrigger>
-            <TooltipContent side="top" className="max-w-xs">
-              {tooltip}
-            </TooltipContent>
-          </Tooltip>
-        )}
-        <SortIcon field={field} />
-      </span>
-    </th>
-  );
 
   return (
     <div className="space-y-6">
@@ -398,24 +415,12 @@ export default function LQTab({ fips, geoType }: LQTabProps) {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50">
-                <ColumnHeader field="naics_label" label="Industry" />
-                <ColumnHeader field="naics" label="NAICS" />
-                <ColumnHeader field="employment" label="Employment" />
-                <ColumnHeader
-                  field="lq"
-                  label="LQ"
-                  tooltip={COLUMN_TOOLTIPS.lq}
-                />
-                <ColumnHeader
-                  field="local_share"
-                  label="Local Share %"
-                  tooltip={COLUMN_TOOLTIPS.local_share}
-                />
-                <ColumnHeader
-                  field="national_share"
-                  label="National Share %"
-                  tooltip={COLUMN_TOOLTIPS.national_share}
-                />
+                <ColumnHeader field="naics_label" label="Industry" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+                <ColumnHeader field="naics" label="NAICS" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+                <ColumnHeader field="employment" label="Employment" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+                <ColumnHeader field="lq" label="LQ" tooltip={COLUMN_TOOLTIPS.lq} sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+                <ColumnHeader field="local_share" label="Local Share %" tooltip={COLUMN_TOOLTIPS.local_share} sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+                <ColumnHeader field="national_share" label="National Share %" tooltip={COLUMN_TOOLTIPS.national_share} sortField={sortField} sortDir={sortDir} onSort={handleSort} />
               </tr>
             </thead>
             <tbody>
