@@ -90,7 +90,7 @@ async def calculate_lq(
     big_e_total = national_emp.get("00", 0)
 
     if e_total == 0 or big_e_total == 0:
-        return []
+        return {"total_employment": 0, "industries": []}
 
     # Calculate LQ for each industry
     results: list[dict[str, Any]] = []

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   BarChart,
   Bar,
@@ -32,6 +32,8 @@ interface RegionLQData {
 
 interface LQComparisonChartProps {
   regionsLQData: RegionLQData[];
+  naicsLevel: number;
+  onNaicsLevelChange: (level: number) => void;
 }
 
 const NAICS_LEVELS = [
@@ -50,8 +52,9 @@ const NAICS_LEVELS = [
  */
 export default function LQComparisonChart({
   regionsLQData,
+  naicsLevel,
+  onNaicsLevelChange,
 }: LQComparisonChartProps) {
-  const [naicsLevel, setNaicsLevel] = useState(2);
 
   const isLoading = regionsLQData.some((r) => r.isLoading);
 
@@ -184,7 +187,7 @@ export default function LQComparisonChart({
               </label>
               <Select
                 value={String(naicsLevel)}
-                onValueChange={(v) => setNaicsLevel(Number(v))}
+                onValueChange={(v) => onNaicsLevelChange(Number(v))}
               >
                 <SelectTrigger className="w-52">
                   <SelectValue />

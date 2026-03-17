@@ -28,11 +28,11 @@ const ACS_YEARS = Array.from({ length: 12 }, (_, i) => 2023 - i);
  */
 export default function DemographicsTab({ fips, geoType }: DemographicsTabProps) {
   const [year, setYear] = useState(2023);
-  // ACS demographics not available at ZIP level
+  // ACS demographics not available at ZIP level — pass empty fips to disable the query
   const { data, isLoading, isError, error } = useDemographics(
-    fips,
+    geoType === "zip" ? "" : fips,
     year,
-    geoType !== "zip" ? geoType : undefined
+    geoType
   );
 
   if (geoType === "zip") {

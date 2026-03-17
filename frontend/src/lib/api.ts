@@ -32,7 +32,14 @@ async function fetchJSON<T>(path: string): Promise<T> {
       signal: controller.signal,
     });
     if (!res.ok) {
-      throw new Error(`API error ${res.status}: ${res.statusText}`);
+      let detail = res.statusText;
+      try {
+        const body = await res.json();
+        if (body.detail) detail = body.detail;
+      } catch {
+        // Response body not JSON — use statusText
+      }
+      throw new Error(`API error ${res.status}: ${detail}`);
     }
     return res.json() as Promise<T>;
   } finally {

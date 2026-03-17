@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BarChart3, Menu, X } from "lucide-react";
@@ -24,29 +24,34 @@ export default function Header() {
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
+  // Close mobile menu whenever the user navigates (link click or browser back/forward).
+  // We use pathname as the "key" — whenever it changes, we reset the menu.
+  // The separate state avoids setState-in-effect by using the key pattern.
+  const [trackedPathname, setTrackedPathname] = useState(pathname);
+  if (trackedPathname !== pathname) {
+    setTrackedPathname(pathname);
+    if (mobileMenuOpen) {
+      setMobileMenuOpen(false);
+    }
+  }
+
   // Close mobile menu when clicking outside
+  const handleClickOutside = useCallback((e: MouseEvent) => {
+    if (
+      menuRef.current &&
+      !menuRef.current.contains(e.target as Node) &&
+      buttonRef.current &&
+      !buttonRef.current.contains(e.target as Node)
+    ) {
+      setMobileMenuOpen(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (!mobileMenuOpen) return;
-
-    function handleClickOutside(e: MouseEvent) {
-      if (
-        menuRef.current &&
-        !menuRef.current.contains(e.target as Node) &&
-        buttonRef.current &&
-        !buttonRef.current.contains(e.target as Node)
-      ) {
-        setMobileMenuOpen(false);
-      }
-    }
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [mobileMenuOpen]);
-
-  // Close mobile menu on route change
-  useEffect(() => {
-    setMobileMenuOpen(false);
-  }, [pathname]);
+  }, [mobileMenuOpen, handleClickOutside]);
 
   /** Determine if a nav item is active based on the current pathname */
   function isNavActive(href: string) {

@@ -23,6 +23,15 @@ const DEFAULT_YEAR = 2023;
 /** Available NAICS digit levels */
 const NAICS_LEVELS = [2, 3, 4, 5, 6] as const;
 
+/** Determine NAICS hierarchy level from a code string.
+ *  Mirrors backend logic in cbp.py:get_naics_level. */
+function getNaicsLevel(code: string): 2 | 3 | 4 | 5 | 6 {
+  if (code.includes("-") || code.includes("/")) return 2;
+  const len = code.length;
+  if (len >= 2 && len <= 6) return len as 2 | 3 | 4 | 5 | 6;
+  return 2; // fallback
+}
+
 /**
  * Industry page — shows how a specific NAICS industry is distributed
  * geographically across all U.S. counties.
@@ -41,8 +50,8 @@ export default function IndustryPage({
   const { naics } = use(params);
   const router = useRouter();
 
-  // Determine the current NAICS level from the code length
-  const currentLevel = naics.length as 2 | 3 | 4 | 5 | 6;
+  // Determine the current NAICS level from the code (handles hyphenated sectors like "31-33")
+  const currentLevel = getNaicsLevel(naics);
 
   // Track the selected NAICS level for the level selector
   // Default to the level matching the current NAICS code

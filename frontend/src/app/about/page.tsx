@@ -140,12 +140,12 @@ export default function AboutPage() {
               2
             </div>
             <div>
-              <h3 className="font-medium text-slate-900">Browse the Overview tab</h3>
+              <h3 className="font-medium text-slate-900">Browse the Economic Base tab</h3>
               <p className="mt-1 text-sm text-slate-600">
-                The Overview tab shows headline metrics at a glance &mdash; total
-                employment, number of establishments, annual payroll, and the top
-                industries by employment. This gives you a quick snapshot of your
-                region&rsquo;s economic profile.
+                The Economic Base tab shows Location Quotients for all industries,
+                revealing which sectors are concentrated locally compared to the
+                national average. Industries with LQ &gt; 1 are &ldquo;basic&rdquo;
+                (export-oriented) industries that drive the local economy.
               </p>
             </div>
           </div>
